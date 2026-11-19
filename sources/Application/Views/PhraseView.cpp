@@ -1290,6 +1290,11 @@ void PhraseView::DrawView() {
     DrawString(pos._x + 18, pos._y, "Cmd2", props);
     DrawString(pos._x + 23, pos._y, "", props);
 
+    // Decode key for the cryptic column headers (dim band under the title)
+    SetColor(CD_CONSOLE);
+    DrawString(6, 1, "Nt = note    I = instrument", props);
+    DrawString(6, 2, "Cmd1 / Cmd2 = effects", props);
+
     SetColor(CD_NORMAL);
 
     pos = anchor;

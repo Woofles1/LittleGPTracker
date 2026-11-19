@@ -707,6 +707,10 @@ void ChainView::DrawView() {
     DrawString(pos._x, pos._y, "Ph", props);
     DrawString(pos._x + 3, pos._y, "Ts", props);
 
+    // Decode key for the column headers (dim band under the title)
+    SetColor(CD_CONSOLE);
+    DrawString(6, 1, "Ph = phrase #   Ts = transpose", props);
+
     SetColor(CD_NORMAL);
 
     pos = anchor;
