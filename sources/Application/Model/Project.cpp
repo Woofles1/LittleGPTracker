@@ -44,6 +44,11 @@ tempoNudge_(0)
     Variable *renderMode =
         new Variable("renderMode", VAR_RENDER, renderModes, MAX_RENDER_MODE, 0);
     this->Insert(renderMode);
+    Variable *duckDepth = new Variable("duck", VAR_DUCK_DEPTH, 70, 100);
+    this->Insert(duckDepth);
+    Variable *duckRecover =
+        new Variable("duckRecover", VAR_DUCK_RECOVER, 200, 500);
+    this->Insert(duckRecover);
 
 // Reload the midi device list
 
@@ -115,6 +120,18 @@ int Project::GetPregain() {
 
 int Project::GetRenderMode() {
     Variable *v = FindVariable(VAR_RENDER);
+    NAssert(v);
+	return v->GetInt();
+}
+
+int Project::GetDuckDepth() {
+    Variable *v = FindVariable(VAR_DUCK_DEPTH);
+    NAssert(v);
+	return v->GetInt();
+}
+
+int Project::GetDuckRecover() {
+    Variable *v = FindVariable(VAR_DUCK_RECOVER);
     NAssert(v);
 	return v->GetInt();
 }

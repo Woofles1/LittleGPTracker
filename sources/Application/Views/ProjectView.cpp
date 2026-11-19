@@ -138,6 +138,16 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     T_SimpleList<UIField>::Insert(field);
     position._x -= 13;
 
+    v = project_->FindVariable(VAR_DUCK_DEPTH);
+    position._y += 2;
+    field = new UIIntVarField(position, *v, "Duck: %d", 0, 100, 1, 10);
+    T_SimpleList<UIField>::Insert(field);
+
+    v = project_->FindVariable(VAR_DUCK_RECOVER);
+    position._y += 1;
+    field = new UIIntVarField(position, *v, "Recover: %d", 20, 500, 10, 50);
+    T_SimpleList<UIField>::Insert(field);
+
     v = project_->FindVariable(VAR_TRANSPOSE);
     position._y += 2;
     UIIntVarField *f2=new UIIntVarField(position,*v,"Transpose: %3.2d",-48,48,0x1,0xC) ;

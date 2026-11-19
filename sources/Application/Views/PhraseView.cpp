@@ -1284,7 +1284,7 @@ void PhraseView::DrawView() {
     pos._y -= 1;
     SetColor(CD_COL_TITLE);
     DrawString(pos._x, pos._y, "Nt", props);
-    DrawString(pos._x + 4, pos._y, "I", props);
+    DrawString(pos._x + 5, pos._y, "I", props);
     DrawString(pos._x + 8, pos._y, "Cmd1", props);
     DrawString(pos._x + 13, pos._y, "", props);
     DrawString(pos._x + 18, pos._y, "Cmd2", props);
@@ -1292,8 +1292,7 @@ void PhraseView::DrawView() {
 
     // Decode key for the cryptic column headers (dim band under the title)
     SetColor(CD_CONSOLE);
-    DrawString(6, 1, "Nt = note    I = instrument", props);
-    DrawString(6, 2, "Cmd1 / Cmd2 = effects", props);
+    DrawString(6, 1, "fx : cmd1, cmd2", props);
 
     SetColor(CD_NORMAL);
 
@@ -1325,7 +1324,7 @@ void PhraseView::DrawView() {
     pos._x += 4;
 
     data = phrase_->instr_ + (16 * viewData_->currentPhrase_);
-    buffer[0] = 'I';
+    buffer[0] = ' ';
     buffer[3] = 0;
 
     for (int j = 0; j < 16; j++) {
@@ -1335,9 +1334,10 @@ void PhraseView::DrawView() {
                                                 : SetColor(CD_NORMAL);
         if (d == 0xFF) {
             SetColor(CD_NORMAL);
-            DrawString(pos._x, pos._y, "I", props);
+            DrawString(pos._x, pos._y, " ", props);
             DrawString(pos._x + 1, pos._y, "--", props);
         } else {
+            buffer[0] = ' ';
             hex2char(d, buffer + 1);
             DrawString(pos._x, pos._y, buffer, props);
             if (j == row_ && (col_ == 0 || col_ == 1)) {

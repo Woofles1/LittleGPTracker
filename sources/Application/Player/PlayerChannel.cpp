@@ -39,14 +39,6 @@ void PlayerChannel::LoadDuckConfig() {
     if (sDuckTrigger_ >= SONG_CHANNEL_COUNT)
         sDuckTrigger_ = SONG_CHANNEL_COUNT - 1;
 
-    int depthPct = duckCfgInt("DUCK_DEPTH", 60);
-    if (depthPct < 0)
-        depthPct = 0;
-    if (depthPct > 100)
-        depthPct = 100;
-    float depth = depthPct / 100.0f;
-    sDuckFloor_ = fl2fp(1.0f - depth);
-
     // which channels duck: explicit bitmask, else everything except the trigger
     const char *chv = Config::GetInstance()->GetValue("DUCK_CHANNELS");
     if (chv) {
@@ -56,8 +48,23 @@ void PlayerChannel::LoadDuckConfig() {
         sDuckMask_ = all & ~(1u << sDuckTrigger_);
     }
 
-    int recoverMs = duckCfgInt("DUCK_RECOVER", 200);
-    float sr = 44100.0f; // v1: assumed; real rate wired in with the UI later
+    // Seed depth/recover from config; the Project knobs override these live.
+    SetDuckParams(duckCfgInt("DUCK_DEPTH", 70), duckCfgInt("DUCK_RECOVER", 200));
+}
+
+// Recompute the duck floor and recover ramp from the live Project knobs.
+// depthPct: 0 = no duck, 100 = silence on each kick. recoverMs: climb-back time.
+void PlayerChannel::SetDuckParams(int depthPct, int recoverMs) {
+    if (depthPct < 0)
+        depthPct = 0;
+    if (depthPct > 100)
+        depthPct = 100;
+    float depth = depthPct / 100.0f;
+    sDuckFloor_ = fl2fp(1.0f - depth);
+
+    if (recoverMs < 1)
+        recoverMs = 1;
+    float sr = 44100.0f; // v1: assumed sample rate
     float recoverSamples = (recoverMs / 1000.0f) * sr;
     if (recoverSamples < 1.0f)
         recoverSamples = 1.0f;

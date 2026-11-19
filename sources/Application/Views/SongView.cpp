@@ -1034,7 +1034,7 @@ void SongView::DrawView() {
     // Decode key for the layout (dim band under the title)
     SetColor(CD_CONSOLE);
     DrawString(6, 1, "columns 00-07 = channels", props);
-    DrawString(6, 2, "each cell = a chain number", props);
+    DrawString(6, 2, "input : chain", props);
 
     SetColor(CD_NORMAL);
 

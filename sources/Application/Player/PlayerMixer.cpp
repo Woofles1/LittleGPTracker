@@ -117,6 +117,11 @@ void PlayerMixer::Update(Observable &o,I_ObservableData *d) {
   ms->SetPregain(project_->GetPregain());
   ms->SetSoftclip(project_->GetSoftclip(), project_->GetSoftclipGain());
   ms->SetMasterVolume(project_->GetMasterVolume());
+  // Live sidechain knobs: push the Project's duck depth/recover each block
+  if (PlayerChannel::DuckEnabled()) {
+    PlayerChannel::SetDuckParams(project_->GetDuckDepth(),
+                                 project_->GetDuckRecover());
+  }
   clipped_=ms->Clipped();
 } ;
 

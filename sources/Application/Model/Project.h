@@ -18,6 +18,8 @@
 #define VAR_PREGAIN   		MAKE_FOURCC('P', 'R', 'G', 'N')
 #define VAR_SCALE 			MAKE_FOURCC('S', 'C', 'A', 'L')
 #define VAR_RENDER MAKE_FOURCC('R', 'N', 'D', 'R')
+#define VAR_DUCK_DEPTH   MAKE_FOURCC('D', 'U', 'C', 'K')
+#define VAR_DUCK_RECOVER MAKE_FOURCC('D', 'C', 'K', 'R')
 
 #define PROJECT_NUMBER "1"
 #define PROJECT_RELEASE "6"
@@ -45,6 +47,8 @@ public:
   int GetSoftclipGain();
   int GetPregain();
   int GetRenderMode();
+  int GetDuckDepth();
+  int GetDuckRecover();
   void Trigger();
 
   static const unsigned int MAX_RENDER_MODE = 3;

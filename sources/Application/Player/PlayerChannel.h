@@ -27,6 +27,8 @@ public:
     // Config is read once from config.xml (DUCK_ENABLE / DUCK_TRIGGER /
     // DUCK_DEPTH / DUCK_RECOVER / DUCK_CHANNELS). v1: no UI, no per-project save.
     static void LoadDuckConfig();
+    // Live-update depth (0-100%) and recover time (ms) from the Project knobs.
+    static void SetDuckParams(int depthPct, int recoverMs);
     static void TriggerDuck();   // kick hit -> drop ducked channels to the floor
     static void NewAudioBlock(); // call once per audio block before rendering
     static bool DuckEnabled() { return sDuckEnabled_; }
