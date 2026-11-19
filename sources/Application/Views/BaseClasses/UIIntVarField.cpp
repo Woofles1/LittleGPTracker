@@ -5,6 +5,7 @@
 #include "UIFramework/Interfaces/I_GUIGraphics.h"
 #include "System/Console/Trace.h"
 #include "Application/AppWindow.h"
+#include <string.h>
 
 #define abs(x) (x<0?-x:x)
 
@@ -34,12 +35,7 @@ void UIIntVarField::Draw(GUIWindow &w,int offset) {
 	GUIPoint position=GetPosition() ;
 	position._y+=offset ;
 
-	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
-	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-	}
+	// Build the "label + value" string first
 	Variable::Type type=src_.GetType() ;
 	char buffer[80] ;
 	switch (type) {
@@ -60,7 +56,33 @@ void UIIntVarField::Draw(GUIWindow &w,int offset) {
 		default:
 			strcpy(buffer,"++wtf++");
 	}
-	w.DrawString(buffer,position,props) ;
+
+	if (focus_) {
+		// Focused field: highlight the whole thing as before
+		((AppWindow&)w).SetColor(CD_HILITE2) ;
+		props.invert_=true ;
+		w.DrawString(buffer,position,props) ;
+	} else {
+		// Unfocused: draw the label (text before the value, i.e. up to the
+		// first format specifier) in the accent colour, the value in normal,
+		// so the subject reads apart from its number.
+		int labelLen=0 ;
+		const char *pct=strchr(format_,'%') ;
+		labelLen = pct ? (int)(pct-format_) : (int)strlen(buffer) ;
+		int blen=(int)strlen(buffer) ;
+		if (labelLen>blen) labelLen=blen ;
+		if (labelLen>0) {
+			char lab[80] ;
+			strncpy(lab,buffer,labelLen) ;
+			lab[labelLen]=0 ;
+			((AppWindow&)w).SetColor(CD_COL_TITLE) ;
+			w.DrawString(lab,position,props) ;
+		}
+		GUIPoint vpos=position ;
+		vpos._x+=labelLen ;
+		((AppWindow&)w).SetColor(CD_NORMAL) ;
+		w.DrawString(buffer+labelLen,vpos,props) ;
+	}
 } ;
 
 void UIIntVarField::ProcessArrow(unsigned short mask) {

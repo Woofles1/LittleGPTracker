@@ -5,6 +5,7 @@
 #include "Application/Model/Config.h"
 #include "Application/Model/Project.h"
 #include "Application/Player/Player.h"
+#include <string>
 #include "Foundation/T_SimpleList.h"
 #include "I_Action.h"
 #include "UIFramework/Interfaces/I_GUIGraphics.h"
@@ -151,6 +152,8 @@ class View : public Observable {
 
     void drawMap();
     void drawNotes();
+    // Draws the 3-line command description in a bordered block at the bottom.
+    void drawHelpBlock(std::string *lines);
     void drawVUMeter(uint8_t leftBars, uint8_t rightBars, GUIPoint pos,
                      GUITextProperties props, int vuIndex,
                      bool forceRedraw = false);

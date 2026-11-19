@@ -50,12 +50,6 @@ void UIIntVarOffField::Draw(GUIWindow &w,int offset) {
 	GUITextProperties props ;
 	GUIPoint position=GetPosition() ;
 
-	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
-	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-	}
 	Variable::Type type=src_.GetType() ;
 	char buffer[80] ;
 	switch (type) {
@@ -90,7 +84,7 @@ void UIIntVarOffField::Draw(GUIWindow &w,int offset) {
 		default:
 			strcpy(buffer,"++wtf++");
 	}
-	w.DrawString(buffer,position,props) ;
+	drawLabelValue(w,buffer,format_,position,focus_) ;
 } ;
 
 

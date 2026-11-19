@@ -11,8 +11,10 @@ void UIStaticField::Draw(GUIWindow &w,int offset) {
 	GUIPoint position=GetPosition() ;
 	position._y+=offset ;
 	
-	((AppWindow&)w).SetColor(CD_NORMAL) ;
-	w.DrawString(string_,position,props) ;	
+	// Static text is a label/heading -> draw it in the label accent colour
+	// so it reads distinctly from the (black) values next to it.
+	((AppWindow&)w).SetColor(CD_COL_TITLE) ;
+	w.DrawString(string_,position,props) ;
 } ;
 
 void UIStaticField::ProcessArrow(unsigned short mask){

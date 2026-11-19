@@ -25,6 +25,10 @@ public:
 	virtual bool IsStatic() ;
 
 protected:
+	// Draw "label + value": the label (text before the first format specifier)
+	// in the accent colour, the value in normal. Focused fields highlight whole.
+	static void drawLabelValue(GUIWindow &w,const char *buffer,const char *format,
+	                           GUIPoint &position,bool focused) ;
 	int x_ ;
 	int y_ ;
 	bool focus_ ;

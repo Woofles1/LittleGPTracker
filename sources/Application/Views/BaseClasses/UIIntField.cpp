@@ -20,17 +20,10 @@ void UIIntField::Draw(GUIWindow &w) {
 	GUITextProperties props ;
 	GUIPoint position=GetPosition() ;
 	
-	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
-	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-	}
-
 	char buffer[80] ;
 	int value=*src_ ;
 	sprintf(buffer,format_,value) ;
-	w.DrawString(buffer,position,props) ;
+	drawLabelValue(w,buffer,format_,position,focus_) ;
 	
 	
 } ;

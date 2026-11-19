@@ -166,12 +166,8 @@ void CommandSelectorModal::DrawView() {
     SetColor(CD_NORMAL);
 
     std::string *cmdStr = getHelpLegend(selectedCommand_);
-    for (int i = 0; i < 3; i++) {
-        // Clear legend area first so shorter lines don't leave stale text.
-        View::DrawString(10, i, "                              ", props);
-        View::DrawString(10, i, cmdStr[i].c_str(), props);
-
-    }
+    drawHelpBlock(cmdStr);
+    delete[] cmdStr;
 }
 
 void CommandSelectorModal::OnPlayerUpdate(PlayerEventType, unsigned int) {}

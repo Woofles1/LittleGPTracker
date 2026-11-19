@@ -74,6 +74,32 @@ void View::Unlock() {
 	locked_=false ;
 }
 
+void View::drawHelpBlock(std::string *lines) {
+	if (miniLayout_) return ;
+	GUITextProperties props ;
+	const int x0=8, x1=38, y0=21, y1=25 ;
+	// border
+	SetColor(CD_BORDER) ;
+	char hline[48] ;
+	int w = x1-x0+1 ;
+	for (int i=0;i<w;i++) hline[i]='-' ;
+	hline[w]=0 ;
+	// Use View::DrawString explicitly: these are absolute screen coords, and a
+	// modal's own DrawString would offset them off-screen (crash).
+	View::DrawString(x0,y0,hline,props) ;
+	View::DrawString(x0,y1,hline,props) ;
+	for (int y=y0+1;y<y1;y++) {
+		View::DrawString(x0,y,"|",props) ;
+		View::DrawString(x1,y,"|",props) ;
+	}
+	// interior: clear each line, then draw the description text
+	SetColor(CD_NORMAL) ;
+	for (int i=0;i<3;i++) {
+		View::DrawString(9,y0+1+i,"                             ",props) ; // 29 spaces
+		View::DrawString(10,y0+1+i,lines[i].c_str(),props) ;
+	}
+}
+
 void View::drawMap() {
     if (!miniLayout_) {
         GUIPoint anchor=GetAnchor() ;

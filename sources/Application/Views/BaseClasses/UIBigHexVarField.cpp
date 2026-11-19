@@ -15,6 +15,7 @@ void UIBigHexVarField::Draw(GUIWindow &w,int offset) {
 	GUITextProperties props ;
 	GUIPoint position=GetPosition() ;
 	position._y+=offset ;
+	GUIPoint labelPos=position ; // remember start for the label overdraw
 
 	if (focus_) {
 		((AppWindow&)w).SetColor(CD_HILITE2) ;
@@ -41,6 +42,15 @@ void UIBigHexVarField::Draw(GUIWindow &w,int offset) {
 		position._x+=offset ;
 		((AppWindow&)w).SetColor(CD_NORMAL) ;
 		w.DrawString(buffer+offset,position,props) ;
+	}
+	// colour the label (text before the value) in the accent when not focused
+	if (!focus_ && percentPos>0) {
+		char lab[96] ;
+		int n = percentPos>95?95:percentPos ;
+		strncpy(lab,buffer,n) ;
+		lab[n]=0 ;
+		((AppWindow&)w).SetColor(CD_COL_TITLE) ;
+		w.DrawString(lab,labelPos,props) ;
 	}
 } ;
 
