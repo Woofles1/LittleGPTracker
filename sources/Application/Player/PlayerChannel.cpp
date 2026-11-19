@@ -1,10 +1,80 @@
 
 #include "PlayerChannel.h"
 #include "Application/Mixer/MixerService.h"
+#include "Application/Model/Config.h"
 #include "Application/Model/Mixer.h"
 #include "Application/Player/SyncMaster.h"
 #include "Application/Utils/fixed.h"
 #include <math.h>
+#include <stdlib.h>
+
+// ---- Shared sidechain ducker state (see PlayerChannel.h) ----
+bool PlayerChannel::sDuckEnabled_ = false;
+int PlayerChannel::sDuckTrigger_ = 0;
+unsigned int PlayerChannel::sDuckMask_ = 0;
+fixed PlayerChannel::sDuckFloor_ = i2fp(1);
+fixed PlayerChannel::sDuckRecoverPerSample_ = i2fp(1);
+fixed PlayerChannel::sDuckGain_ = i2fp(1);
+int PlayerChannel::sDuckBlockToken_ = 0;
+int PlayerChannel::sDuckAppliedToken_ = -1;
+fixed PlayerChannel::sDuckBlockStart_ = i2fp(1);
+
+static int duckCfgInt(const char *key, int def) {
+    const char *v = Config::GetInstance()->GetValue(key);
+    return v ? atoi(v) : def;
+}
+
+void PlayerChannel::LoadDuckConfig() {
+    sDuckEnabled_ = (duckCfgInt("DUCK_ENABLE", 0) != 0);
+    sDuckGain_ = i2fp(1);
+    sDuckBlockStart_ = i2fp(1);
+    sDuckBlockToken_ = 0;
+    sDuckAppliedToken_ = -1;
+    if (!sDuckEnabled_)
+        return;
+
+    sDuckTrigger_ = duckCfgInt("DUCK_TRIGGER", 0);
+    if (sDuckTrigger_ < 0)
+        sDuckTrigger_ = 0;
+    if (sDuckTrigger_ >= SONG_CHANNEL_COUNT)
+        sDuckTrigger_ = SONG_CHANNEL_COUNT - 1;
+
+    int depthPct = duckCfgInt("DUCK_DEPTH", 60);
+    if (depthPct < 0)
+        depthPct = 0;
+    if (depthPct > 100)
+        depthPct = 100;
+    float depth = depthPct / 100.0f;
+    sDuckFloor_ = fl2fp(1.0f - depth);
+
+    // which channels duck: explicit bitmask, else everything except the trigger
+    const char *chv = Config::GetInstance()->GetValue("DUCK_CHANNELS");
+    if (chv) {
+        sDuckMask_ = (unsigned int)atoi(chv);
+    } else {
+        unsigned int all = (1u << SONG_CHANNEL_COUNT) - 1u;
+        sDuckMask_ = all & ~(1u << sDuckTrigger_);
+    }
+
+    int recoverMs = duckCfgInt("DUCK_RECOVER", 200);
+    float sr = 44100.0f; // v1: assumed; real rate wired in with the UI later
+    float recoverSamples = (recoverMs / 1000.0f) * sr;
+    if (recoverSamples < 1.0f)
+        recoverSamples = 1.0f;
+    sDuckRecoverPerSample_ = fl2fp(depth / recoverSamples);
+}
+
+void PlayerChannel::TriggerDuck() {
+    if (!sDuckEnabled_)
+        return;
+    sDuckGain_ = sDuckFloor_;
+}
+
+void PlayerChannel::NewAudioBlock() {
+    if (!sDuckEnabled_)
+        return;
+    sDuckBlockToken_++;
+}
 
 PlayerChannel::PlayerChannel(int index) {             
     index_=index ;
@@ -94,6 +164,30 @@ bool PlayerChannel::Render(fixed *buffer,int samplecount) {
          if (volume_ != i2fp(1)) {
              for (int i = 0; i < samplecount * 2; i++) {
                  buffer[i] = fp_mul(buffer[i], volume_);
+             }
+         }
+
+         // Apply sidechain ducking (shared envelope, keyed off the kick channel)
+         if (sDuckEnabled_ && (sDuckMask_ & (1u << index_))) {
+             if (sDuckAppliedToken_ != sDuckBlockToken_) {
+                 // First ducked channel this block: snapshot the start gain and
+                 // advance the shared recovery envelope exactly once.
+                 sDuckBlockStart_ = sDuckGain_;
+                 fixed advanced = fp_add(
+                     sDuckGain_, fp_mul(sDuckRecoverPerSample_, i2fp(samplecount)));
+                 if (advanced > i2fp(1))
+                     advanced = i2fp(1);
+                 sDuckGain_ = advanced;
+                 sDuckAppliedToken_ = sDuckBlockToken_;
+             }
+             fixed g = sDuckBlockStart_;
+             fixed one = i2fp(1);
+             for (int n = 0; n < samplecount; n++) {
+                 fixed gg = (g > one) ? one : g;
+                 int idx = n * 2;
+                 buffer[idx] = fp_mul(buffer[idx], gg);
+                 buffer[idx + 1] = fp_mul(buffer[idx + 1], gg);
+                 g = fp_add(g, sDuckRecoverPerSample_);
              }
          }
      }

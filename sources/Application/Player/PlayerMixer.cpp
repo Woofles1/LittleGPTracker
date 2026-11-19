@@ -38,6 +38,10 @@ bool PlayerMixer::Init(Project *project) {
 	} ;
 
 	clipped_=false ;
+
+	// Load sidechain ducker settings from config.xml (v1)
+	PlayerChannel::LoadDuckConfig();
+
 	return true ;
 } ;
 
@@ -121,6 +125,11 @@ void PlayerMixer::StartInstrument(int channel,I_Instrument *instrument,unsigned 
 	channel_[channel]->StartInstrument(instrument,note,newInstrument) ;
 	lastInstrument_[channel]=instrument ;
 	notes_[channel]=note ;
+
+	// Sidechain key: a note on the trigger channel (the kick) fires the duck
+	if (PlayerChannel::DuckEnabled() && channel == PlayerChannel::DuckTrigger()) {
+		PlayerChannel::TriggerDuck() ;
+	}
 
 } ;
 

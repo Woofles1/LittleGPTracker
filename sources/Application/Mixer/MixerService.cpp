@@ -3,6 +3,7 @@
 #include "Application/Model/Config.h"
 #include "Application/Model/Mixer.h"
 #include "Application/Model/Project.h"
+#include "Application/Player/PlayerChannel.h"
 #include "Services/Audio/Audio.h"
 #include "Services/Audio/AudioDriver.h"
 #include "Services/Midi/MidiService.h"
@@ -130,6 +131,8 @@ void MixerService::Update(Observable &o, I_ObservableData *d) {
     AudioDriver::Event *event = (AudioDriver::Event *)d;
     if (event->type_ == AudioDriver::Event::ADET_BUFFERNEEDED) {
         Lock();
+        // New audio block: advance the sidechain ducker's recovery once per block.
+        PlayerChannel::NewAudioBlock();
         SetChanged();
         NotifyObservers();
 
